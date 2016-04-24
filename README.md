@@ -57,38 +57,38 @@ Augeas::AUGEAS_INSERT_AFTER = 1
 
 ```php
 <?php
-$augeas = new Augeas();
-
-// gets
-echo $augeas->get("/files/etc/hosts/1/ipaddr")."\n";
-echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
-echo $augeas->get("/files/etc/hosts/1/alias")."\n";
-
-// match
-$expectedArray = array(
-            "/files/etc/hosts/1/ipaddr"    => "127.0.0.1",
-            "/files/etc/hosts/1/canonical" => "localhost",
-            "/files/etc/hosts/1/alias"     => "localhost.localdomain",
-);
-$matches = $augeas->match("/files/etc/hosts/1/*");
-var_dump($matches);
-
-// mv 
-echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
-$augeas->mv("/files/etc/hosts/1/canonical", "/files/etc/hosts/1/alias");
-echo $this->augeas->get("/files/etc/hosts/1/alias")."\n";
-
-// rm and save
-$augeas->rm('/files/etc/hosts/1/ipaddr');
-$augeas->save();
-
-// inserting before the first comment
-$beforeFirstComment = "comment inserted before the first comment";
-$firstComment       = "first comment";
-$augeas->insert("/files/etc/hosts/#comment", "#comment", Augeas::AUGEAS_INSERT_BEFORE);
-$augeas->set("/files/etc/hosts/#comment[1]", $beforeFirstComment);
-echo $augeas->get("/files/etc/hosts/#comment[1]")."\n";
-echo $augeas->get("/files/etc/hosts/#comment[2]")."\n";
+            $augeas = new Augeas();
+            
+            // gets
+            echo $augeas->get("/files/etc/hosts/1/ipaddr")."\n";
+            echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
+            echo $augeas->get("/files/etc/hosts/1/alias")."\n";
+            
+            // match
+            $expectedArray = array(
+                        "/files/etc/hosts/1/ipaddr"    => "127.0.0.1",
+                        "/files/etc/hosts/1/canonical" => "localhost",
+                        "/files/etc/hosts/1/alias"     => "localhost.localdomain",
+            );
+            $matches = $augeas->match("/files/etc/hosts/1/*");
+            var_dump($matches);
+            
+            // mv 
+            echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
+            $augeas->mv("/files/etc/hosts/1/canonical", "/files/etc/hosts/1/alias");
+            echo $this->augeas->get("/files/etc/hosts/1/alias")."\n";
+            
+            // rm and save
+            $augeas->rm('/files/etc/hosts/1/ipaddr');
+            $augeas->save();
+            
+            // inserting before the first comment
+            $beforeFirstComment = "comment inserted before the first comment";
+            $firstComment       = "first comment";
+            $augeas->insert("/files/etc/hosts/#comment", "#comment", Augeas::AUGEAS_INSERT_BEFORE);
+            $augeas->set("/files/etc/hosts/#comment[1]", $beforeFirstComment);
+            echo $augeas->get("/files/etc/hosts/#comment[1]")."\n";
+            echo $augeas->get("/files/etc/hosts/#comment[2]")."\n";
 
 ?>
 ```
