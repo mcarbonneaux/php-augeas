@@ -65,11 +65,6 @@ echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
 echo $augeas->get("/files/etc/hosts/1/alias")."\n";
 
 // match
-$expectedArray = array(
-            "/files/etc/hosts/1/ipaddr"    => "127.0.0.1",
-            "/files/etc/hosts/1/canonical" => "localhost",
-            "/files/etc/hosts/1/alias"     => "localhost.localdomain",
-);
 $matches = $augeas->match("/files/etc/hosts/1/*");
 var_dump($matches);
 
