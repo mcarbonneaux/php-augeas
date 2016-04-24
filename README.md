@@ -53,7 +53,7 @@ Augeas::AUGEAS_INSERT_BEFORE = 0
 Augeas::AUGEAS_INSERT_AFTER = 1
 ```
 
-### Example
+### EXAMPLES
 
 ```php
 <?php
