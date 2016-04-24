@@ -1,3 +1,19 @@
+dnl Configuring the LibXML external Library
+if test -z "$PHP_LIBXML_DIR"; then
+  PHP_ARG_WITH(libxml-dir, libxml2 install dir,
+  [  --with-libxml-dir=[DIR]     php-augeas : libxml2 install prefix], no, no)
+fi
+
+if test "$PHP_LIBXML" = "no"; then
+  AC_MSG_ERROR([php-augeas extension requires LIBXML extension, add --with-libxml-dir])
+fi
+
+PHP_SETUP_LIBXML(XML_SHARED_LIBADD, [
+  PHP_ADD_EXTENSION_DEP(xml, libxml)
+], [
+  AC_MSG_ERROR([xml2-config not found. Use --with-libxml-dir=<DIR>])
+])
+
 PHP_ARG_WITH(augeas,for AUGEAS support,
 [  --with-augeas[=DIR]       Include AUGEAS support])
 
@@ -20,7 +36,7 @@ if test "$PHP_AUGEAS" != "no"; then
   done
 
   if test -z "$AUGEAS_DIR"; then
-    AC_MSG_ERROR(Cannot find libaugeas)
+    AC_MSG_ERROR(Cannot find libaugeas use --with-augeas=<DIR>)
   fi
 
   AUGEAS_LIBDIR=$AUGEAS_DIR/$PHP_LIBDIR
@@ -31,5 +47,6 @@ if test "$PHP_AUGEAS" != "no"; then
 
   PHP_NEW_EXTENSION(augeas, augeas.c, $ext_shared)
   PHP_SUBST(AUGEAS_SHARED_LIBADD)
+  PHP_SUBST(XML_SHARED_LIBADD)
   AC_DEFINE(HAVE_AUGEAS,1,[ ])
 fi
