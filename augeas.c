@@ -148,7 +148,11 @@ static zend_object_value augeas_object_new(zend_class_entry *class_type TSRMLS_D
 
 	ALLOC_HASHTABLE(intern->zo.properties);
 	zend_hash_init(intern->zo.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
+#if PHP_VERSION_ID < 50399
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+#else
+       object_properties_init((zend_object*) &(intern->zo), class_type);
+#endif
 
 	retval.handle = zend_objects_store_put(intern, augeas_object_dtor, NULL, NULL TSRMLS_CC);
 	retval.handlers = zend_get_std_object_handlers();
@@ -163,10 +167,16 @@ static zend_object_value augeas_object_new(zend_class_entry *class_type TSRMLS_D
 PHP_MINIT_FUNCTION(augeas)
 {
 	zend_class_entry ce, ce_exception;
+	zend_class_entry *default_exception=NULL;
 
 	/* Register AugeasException class (inherits Exception) */
 	INIT_CLASS_ENTRY(ce_exception, "AugeasException", NULL);
-	augeas_ce_AugeasException = zend_register_internal_class_ex(&ce_exception, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_DC); 
+	#if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 2)
+	        default_exception= zend_exception_get_default();
+	#else
+	        default_exception= zend_exception_get_default(TSRMLS_C);
+	#endif
+	augeas_ce_AugeasException = zend_register_internal_class_ex(&ce_exception, default_exception, NULL TSRMLS_CC); 
 
 	/* Register Augeas class */
 	INIT_CLASS_ENTRY(ce, "Augeas", augeas_methods);
@@ -223,11 +233,11 @@ PHP_METHOD(Augeas, __construct)
 		RETURN_FALSE;
 	}
 
-	if (php_check_open_basedir(root TSRMLS_DC) != 0) {
+	if (php_check_open_basedir(root TSRMLS_CC) != 0) {
 		RETURN_FALSE;
 	}
 
-	obj = (php_augeas_object *) zend_object_store_get_object(getThis() TSRMLS_DC);
+	obj = (php_augeas_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 	obj->augeas = aug_init(root, loadpath, flags);
 
 	if (!obj->augeas) zend_throw_exception(augeas_ce_AugeasException, "could not initialize augeas resource", 0 TSRMLS_CC);
