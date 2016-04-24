@@ -55,4 +55,25 @@ Augeas::AUGEAS_INSERT_AFTER = 1
 
 ### Example
 
-$this->augeas = new Augeas(
+```php
+<?php
+$augeas = new Augeas();
+
+echo $augeas->get("/files/etc/hosts/1/ipaddr")."\n";
+echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
+echo $augeas->get("/files/etc/hosts/1/alias")."\n";
+
+$expectedArray = array(
+            "/files/etc/hosts/1/ipaddr"    => "127.0.0.1",
+            "/files/etc/hosts/1/canonical" => "localhost",
+            "/files/etc/hosts/1/alias"     => "localhost.localdomain",
+);
+$matches = $augeas->match("/files/etc/hosts/1/*");
+var_dump($matches);
+
+echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
+$augeas->mv("/files/etc/hosts/1/canonical", "/files/etc/hosts/1/alias");
+echo $this->augeas->get("/files/etc/hosts/1/alias")."\n";
+
+?>
+```
