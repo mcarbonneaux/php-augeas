@@ -69,6 +69,9 @@ echo $augeas->get("/files/etc/hosts/1/ipaddr")."\n";
 echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
 echo $augeas->get("/files/etc/hosts/1/alias")."\n";
 
+// dump_to_xml
+echo $augeas->dump_to_xml("/files/etc/hosts/1/*")."\n";
+
 // match
 $matches = $augeas->match("/files/etc/hosts/1/*");
 var_dump($matches);
