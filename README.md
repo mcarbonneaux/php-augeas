@@ -1,6 +1,6 @@
 ### new addition in this realese
 
-- add dump_to_xml to retreave augeas tree in xml string from [aug_to_xml](http://augeas.net/docs/references/c_api/files/augeas-h.html#aug_to_xml)
+- add dump_to_xml to retreave augeas tree in xml string or domxml from [aug_to_xml](http://augeas.net/docs/references/c_api/files/augeas-h.html#aug_to_xml)
 
 ### INSTALL
 
