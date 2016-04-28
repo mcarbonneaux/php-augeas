@@ -26,6 +26,9 @@
 #include "ext/standard/info.h"
 #include "augeas.h"
 #include "php_augeas.h"
+#include "ext/dom/xml_common.h"
+#include "ext/simplexml/php_simplexml.h"
+#include "ext/simplexml/php_simplexml_exports.h"
 
 /* {{{ zend_class_entry */
 zend_class_entry *augeas_ce_Augeas;
@@ -307,8 +310,12 @@ PHP_METHOD(Augeas, dump_to_xml)
 	xmlNodePtr xmldoc=NULL;
         xmlBufferPtr buffer=NULL;
 	int size = 0;
+	zend_bool xmlFlag = 1;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+	// return simple element object
+	php_libxml_node_object *interndoc;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &path, &path_len, &xmlFlag) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -323,23 +330,35 @@ PHP_METHOD(Augeas, dump_to_xml)
 
 		/* export success */
 		case 0:
-			// dump xmldoc to xmlbuffer
-			buffer = xmlBufferCreate();
-			size = xmlNodeDump(buffer, xmldoc->doc, xmldoc, 0, 1);
-			if (size==-1) {
-			        zend_throw_exception(augeas_ce_AugeasException, "xmlNodeDump failed", 0 TSRMLS_CC);
-				break;
+			if (! xmldoc) {
+				RETURN_NULL();
 			}
 
-			// duplicate xml string emallocated memory
-			value=emalloc(size);
-			memcpy(value,buffer->content,size);
-			value[size]='\0';
+			if (xmlFlag) {
+			   object_init_ex(return_value, dom_node_class_entry);
 
-			xmlFreeNode(xmldoc);
-			xmlBufferFree(buffer);
+			   interndoc = (php_libxml_node_object *)zend_objects_get_address(return_value TSRMLS_CC);
+			   php_libxml_increment_doc_ref(interndoc, xmldoc->doc TSRMLS_CC);
+			   php_libxml_increment_node_ptr(interndoc, xmldoc, (void *)interndoc TSRMLS_CC);
+			} else {
+			  // dump xmldoc to xmlbuffer
+			  buffer = xmlBufferCreate();
+			  size = xmlNodeDump(buffer, xmldoc->doc, xmldoc, 0, 1);
+			  if (size==-1) {
+				  zend_throw_exception(augeas_ce_AugeasException, "xmlNodeDump failed", 0 TSRMLS_CC);
+				  break;
+			  }
 
-			RETURN_STRING(value, 0);
+			  // duplicate xml string emallocated memory
+			  value=emalloc(size);
+			  memcpy(value,buffer->content,size);
+			  value[size]='\0';
+
+			  xmlFreeNode(xmldoc);
+			  xmlBufferFree(buffer);
+
+			  RETURN_STRING(value, 0);
+			}
 			break;
 
 		default:
