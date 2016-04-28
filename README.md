@@ -32,7 +32,7 @@ extension=augeas.so
 ```
 void    Augeas::__construct([string $root[, string $loadpath[, int $flags]]])
 string  Augeas::get(string $path)
-string  Augeas::dump_to_xml(string $path)
+string  Augeas::dump_to_xml(string $path,bool XmlStringFlag)
 array   Augeas::match(string $path);
 boolean Augeas::set(string $path, string $value);
 boolean Augeas::rm($augeas, string $path);
@@ -69,8 +69,11 @@ echo $augeas->get("/files/etc/hosts/1/ipaddr")."\n";
 echo $augeas->get("/files/etc/hosts/1/canonical")."\n";
 echo $augeas->get("/files/etc/hosts/1/alias")."\n";
 
-// dump_to_xml
+// dump_to_xml to DomXml object
 echo $augeas->dump_to_xml("/files/etc/hosts/1/*")."\n";
+
+// dump_to_xml to xml string
+echo $augeas->dump_to_xml("/files/etc/hosts/1/*",0)."\n";
 
 // match
 $matches = $augeas->match("/files/etc/hosts/1/*");
