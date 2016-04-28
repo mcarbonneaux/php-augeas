@@ -50,6 +50,7 @@ PHP_MINFO_FUNCTION(augeas);
 
 PHP_METHOD(Augeas, __construct);
 PHP_METHOD(Augeas, get);
+PHP_METHOD(Augeas, dump_to_xml);
 PHP_METHOD(Augeas, set);
 PHP_METHOD(Augeas, match);
 PHP_METHOD(Augeas, save);

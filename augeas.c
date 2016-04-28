@@ -43,6 +43,10 @@ ZEND_BEGIN_ARG_INFO(arginfo_Augeas_get, 0)
 	ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO();
 
+ZEND_BEGIN_ARG_INFO(arginfo_Augeas_dump_to_xml, 0)
+	ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO();
+
 ZEND_BEGIN_ARG_INFO(arginfo_Augeas_match, 0)
 	ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO();
@@ -75,6 +79,7 @@ ZEND_END_ARG_INFO();
 static zend_function_entry augeas_methods[] = {
 	PHP_ME(Augeas, __construct, arginfo_Augeas__construct, ZEND_ACC_PUBLIC)
 	PHP_ME(Augeas, get, arginfo_Augeas_get, ZEND_ACC_PUBLIC)
+	PHP_ME(Augeas, dump_to_xml, arginfo_Augeas_dump_to_xml, ZEND_ACC_PUBLIC)
 	PHP_ME(Augeas, set, arginfo_Augeas_set, ZEND_ACC_PUBLIC)
 	PHP_ME(Augeas, match, arginfo_Augeas_match, ZEND_ACC_PUBLIC)
 	PHP_ME(Augeas, rm, arginfo_Augeas_rm, ZEND_ACC_PUBLIC)
@@ -286,6 +291,62 @@ PHP_METHOD(Augeas, get)
 			zend_throw_exception(augeas_ce_AugeasException, "specified path is invalid", 0 TSRMLS_CC);
 			break;
 	}
+	
+}
+/* }}} */
+
+/* {{{ proto string Augeas::dump_to_xml(string $path);
+       dump to xml string. */
+PHP_METHOD(Augeas, dump_to_xml)
+{
+	char *path, *value;
+	char **matches;
+	int path_len, retval;
+	php_augeas_object *obj;
+	augeas *aug_intern;
+	xmlNodePtr xmldoc=NULL;
+        xmlBufferPtr buffer=NULL;
+	int size = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+		RETURN_FALSE;
+	}
+
+	if (path_len < 1) {
+		RETURN_FALSE;
+	}   
+
+	AUGEAS_FROM_OBJECT(aug_intern, getThis());
+
+	retval = aug_to_xml(aug_intern, path, &xmldoc, 0);
+	switch (retval) {
+
+		/* export success */
+		case 0:
+			// dump xmldoc to xmlbuffer
+			buffer = xmlBufferCreate();
+			size = xmlNodeDump(buffer, xmldoc->doc, xmldoc, 0, 1);
+			if (size==-1) {
+			        zend_throw_exception(augeas_ce_AugeasException, "xmlNodeDump failed", 0 TSRMLS_CC);
+				break;
+			}
+
+			// duplicate xml string emallocated memory
+			value=emalloc(size);
+			memcpy(value,buffer->content,size);
+			value[size]='\0';
+
+			xmlFreeNode(xmldoc);
+			xmlBufferFree(buffer);
+
+			RETURN_STRING(value, 0);
+			break;
+
+		default:
+			zend_throw_exception(augeas_ce_AugeasException, "XML export failed", 0 TSRMLS_CC);
+			break;
+	}
+
 	
 }
 /* }}} */
