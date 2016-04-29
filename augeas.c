@@ -311,6 +311,9 @@ PHP_METHOD(Augeas, dump_to_xml)
         xmlBufferPtr buffer=NULL;
 	int size = 0;
 	zend_bool xmlFlag = 1;
+	zend_class_entry **ce;
+	php_sxe_object *sxe;
+	int ret;
 
 	// return simple element object
 	php_libxml_node_object *interndoc;
@@ -335,11 +338,37 @@ PHP_METHOD(Augeas, dump_to_xml)
 			}
 
 			if (xmlFlag) {
-			   object_init_ex(return_value, dom_node_class_entry);
+			   /*
+			   zend_lookup_class("SimpleXMLElement",16,&ce TSRMLS_CC);
+			   object_init_ex(return_value, *ce);
 
-			   interndoc = (php_libxml_node_object *)zend_objects_get_address(return_value TSRMLS_CC);
-			   php_libxml_increment_doc_ref(interndoc, xmldoc->doc TSRMLS_CC);
-			   php_libxml_increment_node_ptr(interndoc, xmldoc, (void *)interndoc TSRMLS_CC);
+			   //sxe = sxe_object_new(*ce TSRMLS_CC);
+			   sxe=zend_object_store_get_object_by_handle(return_value->value.obj.handle TSRMLS_CC);
+			   //sxe->document = return_value->document;
+			   php_libxml_increment_doc_ref((php_libxml_node_object *)sxe, xmldoc->doc TSRMLS_CC);
+			   php_libxml_increment_node_ptr((php_libxml_node_object *)sxe, xmldoc, NULL TSRMLS_CC);
+
+			   //return_value->type = IS_OBJECT;
+			   //return_value->value.obj = php_sxe_register_object(sxe TSRMLS_CC);
+			   */
+
+			   //zend_lookup_class("DOMDocument",11,&ce TSRMLS_CC);
+			   //object_init_ex(return_value, *ce);
+
+			   /*
+			   sxe = (php_sxe_object *)zend_objects_get_address(return_value TSRMLS_CC);
+			   //sxe->document=xmldoc->doc;
+			   php_libxml_increment_doc_ref(sxe, xmldoc->doc TSRMLS_CC);
+			   php_libxml_increment_node_ptr(sxe, xmldoc, (void *)interndoc TSRMLS_CC);
+			   */
+			   xmlDocPtr xdoc=xmlNewDoc(NULL);
+			   xmlDocSetRootElement(xdoc,xmldoc);
+			   xmldoc->doc=xdoc;
+			   DOM_RET_OBJ( xmldoc, &ret, NULL);
+			   //interndoc = (php_libxml_node_object *)zend_objects_get_address(return_value TSRMLS_CC);
+			   //php_libxml_increment_doc_ref(interndoc, xdoc TSRMLS_CC);
+			   //php_libxml_increment_node_ptr(interndoc, xmldoc, (void *)interndoc TSRMLS_CC);
+
 			} else {
 			  // dump xmldoc to xmlbuffer
 			  buffer = xmlBufferCreate();
